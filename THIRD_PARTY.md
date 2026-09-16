@@ -22,7 +22,13 @@ iPlug2 uses a permissive zlib-style license. A copy is preserved in `docs/licens
 
 ## VST3 SDK
 
-The pinned iPlug2 revision contains the VST3 SDK source required by this build. The included SDK license identifies it as MIT-licensed. A copy is preserved in `docs/licenses/VST3-LICENSE.txt`.
+The VST3 SDK is downloaded separately because a clean iPlug2 checkout contains only a placeholder directory for it. Its compatible revision is pinned in `scripts/setup_dependencies.ps1`:
+
+```text
+3cdf9ca5d1f5b1b21e0a86832aa4abe55607bd96
+```
+
+The selected SDK identifies itself as version 3.8.1 and uses the MIT License. A license copy is preserved in `docs/licenses/VST3-LICENSE.txt`.
 
 ## Roboto
 

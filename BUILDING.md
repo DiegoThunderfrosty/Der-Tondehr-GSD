@@ -29,4 +29,4 @@ To select another generated build directory:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build.ps1 -BuildDirectory build\another-directory
 ```
 
-The compatible framework revision is pinned in `scripts/setup_dependencies.ps1`. Do not update it without rebuilding the Release VST3 and validating lifecycle, automation, bypass, every oversampling mode, and representative sample rates.
+The compatible iPlug2 and VST3 SDK revisions are pinned in `scripts/setup_dependencies.ps1`. Do not update them without rebuilding the Release VST3 and validating lifecycle, automation, bypass, every oversampling mode, and representative sample rates.

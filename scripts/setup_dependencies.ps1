@@ -9,7 +9,9 @@ if (-not $Destination) {
 }
 
 $iPlugRevision = 'b64192fe18afd9bc9a1fe324db5aceb48f4a0eee'
+$vstRevision = '3cdf9ca5d1f5b1b21e0a86832aa4abe55607bd96'
 $iPlugRepository = 'https://github.com/iPlug2/iPlug2.git'
+$vstRepository = 'https://github.com/steinbergmedia/vst3sdk.git'
 
 $git = Get-Command git -ErrorAction SilentlyContinue
 if (-not $git) {
@@ -33,13 +35,45 @@ if ($LASTEXITCODE -ne 0) { throw 'Could not fetch the required iPlug2 revision.'
 & $git.Source -C $Destination checkout --detach $iPlugRevision
 if ($LASTEXITCODE -ne 0) { throw 'Could not select the required iPlug2 revision.' }
 
+# A clean iPlug2 checkout contains only a placeholder README in this path.
+# The SDK itself is intentionally ignored by iPlug2 and must be cloned
+# separately. Never delete an unknown non-Git SDK directory automatically.
+$vstPath = Join-Path $Destination 'Dependencies\IPlug\VST3_SDK'
+if (Test-Path -LiteralPath $vstPath) {
+  $vstGit = Join-Path $vstPath '.git'
+  if (-not (Test-Path -LiteralPath $vstGit)) {
+    $placeholderEntries = @(Get-ChildItem -LiteralPath $vstPath -Force)
+    $isCleanPlaceholder = $placeholderEntries.Count -eq 1 -and $placeholderEntries[0].Name -eq 'README.md'
+    if (-not $isCleanPlaceholder) {
+      throw "The VST3 SDK path exists but is not a Git checkout or the clean iPlug2 placeholder. Move or remove it manually, then run this script again: $vstPath"
+    }
+    Remove-Item -LiteralPath $vstPath -Recurse -Force
+  }
+}
+
+if (-not (Test-Path -LiteralPath $vstPath)) {
+  & $git.Source clone --recursive $vstRepository $vstPath
+  if ($LASTEXITCODE -ne 0) { throw 'Could not clone the VST3 SDK.' }
+}
+
+if (-not (Test-Path -LiteralPath (Join-Path $vstPath '.git'))) {
+  throw "The SDK destination exists but is not a Git checkout: $vstPath"
+}
+
+& $git.Source -C $vstPath fetch --depth 1 origin $vstRevision
+if ($LASTEXITCODE -ne 0) { throw 'Could not fetch the required VST3 SDK revision.' }
+& $git.Source -C $vstPath checkout --detach $vstRevision
+if ($LASTEXITCODE -ne 0) { throw 'Could not select the required VST3 SDK revision.' }
+& $git.Source -C $vstPath submodule update --init --recursive --depth 1
+if ($LASTEXITCODE -ne 0) { throw 'Could not initialize the VST3 SDK submodules.' }
+
 $requiredFiles = @(
   (Join-Path $Destination 'iPlug2.cmake'),
   (Join-Path $Destination 'LICENSE.txt'),
-  (Join-Path $Destination 'Dependencies\IPlug\VST3_SDK\CMakeLists.txt'),
-  (Join-Path $Destination 'Dependencies\IPlug\VST3_SDK\LICENSE.txt'),
-  (Join-Path $Destination 'Dependencies\IPlug\VST3_SDK\pluginterfaces\base\funknown.h'),
-  (Join-Path $Destination 'Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp')
+  (Join-Path $vstPath 'CMakeLists.txt'),
+  (Join-Path $vstPath 'LICENSE.txt'),
+  (Join-Path $vstPath 'pluginterfaces\base\funknown.h'),
+  (Join-Path $vstPath 'public.sdk\source\vst\vstsinglecomponenteffect.cpp')
 )
 foreach ($file in $requiredFiles) {
   if (-not (Test-Path -LiteralPath $file)) { throw "Required dependency file is missing: $file" }
@@ -47,3 +81,4 @@ foreach ($file in $requiredFiles) {
 
 Write-Host "Dependencies are ready: $Destination"
 Write-Host "iPlug2 revision: $iPlugRevision"
+Write-Host "VST3 SDK revision: $vstRevision"

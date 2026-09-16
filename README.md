@@ -93,7 +93,7 @@ git clone https://github.com/DiegoThunderfrosty/Der-Tondehr-GSD.git
 cd Der-Tondehr-GSD
 ```
 
-Download the pinned framework revision:
+Download the pinned framework and VST3 SDK revisions:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup_dependencies.ps1
@@ -141,9 +141,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build.ps1
 
 Open Visual Studio Installer and confirm that the desktop C++ workload, MSVC tools, a Windows SDK, and CMake tools are installed.
 
-### iPlug2 is missing
+### iPlug2 or the VST3 SDK is missing
 
-Run `scripts\setup_dependencies.ps1`. Do not create an empty `external\iPlug2` directory; the script validates real files and the pinned revision.
+Run `scripts\setup_dependencies.ps1`. Do not manually create empty dependency directories; the script downloads and validates both repositories at their pinned revisions.
 
 ### The plugin is not listed
 
