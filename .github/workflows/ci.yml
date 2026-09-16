@@ -1,0 +1,29 @@
+name: Windows VST3 Build
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-vst3:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare pinned dependencies
+        shell: powershell
+        run: .\scripts\setup_dependencies.ps1
+
+      - name: Build Release VST3
+        shell: powershell
+        run: .\scripts\build.ps1
+
+      - name: Upload VST3 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Der-Tondehr-GSD-Windows-x64
+          path: build/windows/out/DerTondehrGSD.vst3
+          if-no-files-found: error

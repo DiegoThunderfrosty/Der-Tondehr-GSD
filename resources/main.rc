@@ -1,0 +1,4 @@
+#include "resource.h"
+#include "..\config.h"
+
+ROBOTO_FN TTF "fonts\\Roboto-Regular.ttf"
